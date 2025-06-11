@@ -614,7 +614,14 @@ class Packer:
             self.sortBinding(bin)
 
         for idx, bin in enumerate(self.bins):
+            # First, directly add locked items that already have a position
             for item in self.items:
+                if item.locked and item.position != START_POSITION:
+                    bin.items.append(copy.deepcopy(item))
+
+            for item in self.items:
+                if item.locked:
+                    continue  # Skip re-packing locked items
                 self.pack2Bin(bin, item, fix_point, check_stable, support_surface_ratio)
 
             if binding != []:
@@ -625,9 +632,12 @@ class Packer:
                 bin.unfitted_items = self.unfit_items
                 bin.fit_items = np.array([[0, bin.width, 0, bin.height, 0, 0]])
                 for item in self.items:
-                    self.pack2Bin(
-                        bin, item, fix_point, check_stable, support_surface_ratio
-                    )
+                    if item.locked:
+                        bin.items.append(copy.deepcopy(item))
+                    else:
+                        self.pack2Bin(
+                            bin, item, fix_point, check_stable, support_surface_ratio
+                        )
 
             self.bins[idx].gravity = self.gravityCenter(bin)
 
