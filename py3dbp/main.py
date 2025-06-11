@@ -169,9 +169,10 @@ class Bin:
             fit = True
 
             for current_item_in_bin in self.items:
-                if intersect(current_item_in_bin, item):
-                    fit = False
-                    break
+                if current_item_in_bin.locked and current_item_in_bin.position:
+                    if intersect(current_item_in_bin, item):
+                        fit = False
+                        break
 
             if fit:
                 # cal total weight
